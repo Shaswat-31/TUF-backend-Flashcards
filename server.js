@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const url = require('url');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -13,11 +14,13 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MySQL connection
+const parsedUrl = url.parse(process.env.DATABASE_URL);
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: parsedUrl.hostname,
+  user: parsedUrl.auth.split(':')[0],
+  password: parsedUrl.auth.split(':')[1],
+  database: parsedUrl.path.split('/')[1],
+  port: parsedUrl.port,
 });
 
 db.connect((err) => {
